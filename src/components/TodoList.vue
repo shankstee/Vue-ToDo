@@ -8,12 +8,12 @@
       @keyup.enter="addTodo"
     >
     <div id="todoListDiv">
-      <div v-for="(todo) in todos" :key="todo.id" class="todo-item">
+      <div v-for="(todo, index) in todos" :key="todo.id" class="todo-item">
         <p>
-          <span>{{todo.id}}.</span>
+         <input type="checkbox">
           {{todo.title}}
         </p>
-        <button @click="addTodo">X</button>
+        <button @click="removeTodo(index)">X</button>
       </div>
     </div>
   </div>
@@ -24,15 +24,16 @@ export default {
   name: "todo-list",
   data() {
     return {
-      todoID: 44,
       newTodoText: "",
       todos: []
     };
   },
 
-//    created() {
-//     // this.getTodos();
-//   },
+    // on page load grab the user todos from local storage
+   beforeMount() {
+      this.getTodos();
+    },
+    
 
   methods: {
     getTodos() {
@@ -42,46 +43,45 @@ export default {
       this.todos = userTodoObj;
       
     },
-    // beforeMount() {
-    //   this.renderLocalStorage();
-    // },
+    
 
     addTodo() {
-        // localStorage.removeItem('userTodos');
+        // Validation check
       if (this.newTodoText.trim().length === 0) {
         return;
+      }
+        // Check if already exists
+      if (localStorage.getItem("userTodos") === null) {
+          localStorage.setItem("userTodos", JSON.stringify([]));
+          
       }
 
         // this is the users local storage string of info
       let userTodos = localStorage.getItem("userTodos");
       // take said info and parse it into a JSON object
       let userTodoObj = JSON.parse(userTodos);
-      // set said JSON obj as the current todo array within data() {}
-    //   this.todos = userTodoObj;
-      console.log(this.todos)
+      //set said JSON obj as the current todo array within data() {}
+      this.todos = userTodoObj;
+
       // push the new To do into said array
       this.todos.push({
-        id: this.todoID,
         title: this.newTodoText,
         completed: false
       });
       // remove the old userTodo item from local strorage 
       localStorage.removeItem('userTodos');
-      // clear the input state
-      this.newTodo = "";
-      this.todoID++;
-      
-        // send the new JSON obj to local storage
+        // send the new JSON "strin" obj to local storage
       localStorage.setItem("userTodos", JSON.stringify(this.todos));
+      // clear the input state
+      this.newTodoText = "";
       
     },
 
     removeTodo(index) {
-      // Read the local storage, save it as a object within a variable
       //delete the index
-      console.log("clicked");
-      //   this.todos.splice(index, 1);
-      localStorage.removeItem("userTodos.[0]");
+        this.todos.splice(index, 1);
+        // update local storage
+        localStorage.setItem("userTodos", JSON.stringify(this.todos));
     }
   }
 };
